@@ -376,3 +376,23 @@ save(fullfile('out','ALL_pcg_mfcc_dataset.mat'), 'All');
 ```
 
 -----
+
+# Resultados
+
+Al ejecutar el código finalizado en lenguaje .m con cada uno de los audios de interes, se logró contruir una extensa matriz de coeficientes para cada una de las clases: normal, click y soplo. La matriz se puede observar en parte en la siguiente figura.
+<p align="center">
+  <img src="imagenes/matriz.jpg" alt="matriz" width="800">
+</p>
+<p align="center"><em>Figura 1. Matriz obtenida de coeficientes en formato .csv </em></p>
+
+Una vez teniendo la matriz de coeficientes, se ejecutó la función "classification learner" de MATLAB, con la cual se obtuvo la siguiente gráfica de dispersión para cada una de las clases.
+<p align="center">
+  <img src="imagenes/plot.jpg" alt="plot" width="800">
+</p>
+<p align="center"><em>Figura 2. Gráfica de dispersión después del entrenamiento del modelo </em></p>
+
+Finalmente, se evaluó la precisión del modelo, siendo en este caso de un 99.1% al ajustarse a los datos proporcionados.
+<p align="center">
+  <img src="imagenes/porcentaje.jpg" alt="porcentaje" width="800">
+</p>
+<p align="center"><em>Figura 3. Porcentaje final de precisión del modelo </em></p>
