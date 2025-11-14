@@ -1,0 +1,603 @@
+clear; close all; clc;
+
+% === 0.1 Leer audio (ajusta la ruta a tus archivos) ===
+% [x, fs] = audioread('data/01_apex_normal_s1_s2_supine_bell.mp3');
+% [~, file_name, ~] = fileparts('data/01_apex_normal_s1_s2_supine_bell.mp3');
+
+[x, fs] = audioread('data/02_apex_split_s1_supine_bell.mp3');
+[~, file_name, ~] = fileparts('data/02_apex_split_s1_supine_bell.mp3');
+
+% [x, fs] = audioread('data/03_apex_s4_lld_bell.mp3');
+% [~, file_name, ~] = fileparts('data/03_apex_s4_lld_bell.mp3');
+
+% [x, fs] = audioread('data/04_apex_mid_sys_click_supine_bell.mp3');
+% [~, file_name, ~] = fileparts('data/04_apex_mid_sys_click_supine_bell.mp3');
+
+% [x, fs] = audioread('data/05_apex_s3_lld_bell.mp3');
+% [~, file_name, ~] = fileparts('data/05_apex_s3_lld_bell.mp3');
+
+% [x, fs] = audioread('data/06_apex_early_sys_mur_supine_bell.mp3');
+% [~, file_name, ~] = fileparts('data/06_apex_early_sys_mur_supine_bell.mp3');
+
+% [x, fs] = audioread('data/07_apex_mid_sys_mur_supine_bell.mp3');
+% [~, file_name, ~] = fileparts('data/07_apex_mid_sys_mur_supine_bell.mp3');
+
+% [x, fs] = audioread('data/08_apex_late_sys_mur_supine_bell.mp3');
+% [~, file_name, ~] = fileparts('data/08_apex_late_sys_mur_supine_bell.mp3');
+
+% [x, fs] = audioread('data/09_apex_holo_sys_mur_supine_bell.mp3');
+% [~, file_name, ~] = fileparts('data/09_apex_holo_sys_mur_supine_bell.mp3');
+
+% [x, fs] = audioread('data/10_apex_sys_click__late_sys_mur_lld_bell.mp3');
+% [~, file_name, ~] = fileparts('data/10_apex_sys_click__late_sys_mur_lld_bell.mp3');
+
+% [x, fs] = audioread('data/11_apex_s4__mid_sys_mur_lld_bell.mp3');
+% [~, file_name, ~] = fileparts('data/11_apex_s4__mid_sys_mur_lld_bell.mp3');
+
+% [x, fs] = audioread('data/12_apex_s3__holo_sys_mur_lld_bell.mp3');
+% [~, file_name, ~] = fileparts('data/12_apex_s3__holo_sys_mur_lld_bell.mp3');
+
+% [x, fs] = audioread('data/13_apex_os__dias_mur_lld_bell.mp3');
+% [~, file_name, ~] = fileparts('data/13_apex_os__dias_mur_lld_bell.mp3');
+
+% [x, fs] = audioread('data/14_aortic_normal_s1_s2_sitting_bell.mp3');
+% [~, file_name, ~] = fileparts('data/14_aortic_normal_s1_s2_sitting_bell.mp3');
+
+% [x, fs] = audioread('data/15_aortic_sys_mur__absent_s2_sitting_bell.mp3');
+% [~, file_name, ~] = fileparts('data/15_aortic_sys_mur__absent_s2_sitting_bell.mp3');
+
+% [x, fs] = audioread('data/16_aortic_early_dias_mur_sitting_bell.mp3');
+% [~, file_name, ~] = fileparts('data/16_aortic_early_dias_mur_sitting_bell.mp3');
+
+% [x, fs] = audioread('data/17_aortic_sys__dias_mur_sitting_bell.mp3');
+% [~, file_name, ~] = fileparts('data/17_aortic_sys__dias_mur_sitting_bell.mp3');
+
+% [x, fs] = audioread('data/18_pulm_single_s2_supine_diaph.mp3');
+% [~, file_name, ~] = fileparts('data/18_pulm_single_s2_supine_diaph.mp3');
+
+% [x, fs] = audioread('data/19_pulm_spilt_s2_persistent_supine_diaph.mp3');
+% [~, file_name, ~] = fileparts('data/19_pulm_spilt_s2_persistent_supine_diaph.mp3');
+
+% [x, fs] = audioread('data/20_pulm_spilt_s2_transient_supine_diaph.mp3');
+% [~, file_name, ~] = fileparts('data/20_pulm_spilt_s2_transient_supine_diaph.mp3');
+
+% [x, fs] = audioread('data/21_pulm_eject_sys_mur__trans_split_s2_supine_diaph.mp3');
+% [~, file_name, ~] = fileparts('data/21_pulm_eject_sys_mur__trans_split_s2_supine_diaph.mp3');
+
+% [x, fs] = audioread('data/22_pulm_split_s2__eject_sys_mur_supine_diaph.mp3');
+% [~, file_name, ~] = fileparts('data/22_pulm_split_s2__eject_sys_mur_supine_diaph.mp3');
+
+% [x, fs] = audioread('data/23_pulm_eject_sys_mur__single_s2__eject_click_supine_diaph.mp3');
+% [~, file_name, ~] = fileparts('data/23_pulm_eject_sys_mur__single_s2__eject_click_supine_diaph.mp3');
+
+% === 0.2 Si es estéreo, convertir a mono ===
+if size(x,2) > 1
+    x = mean(x, 2);
+end
+
+% === 0.3 Normalizar a [-1, 1] ===
+a = -1; b = 1;
+x = (x - min(x)) / max(eps, (max(x) - min(x)));  % [0,1]
+x = x * (b - a) + a;                              % [-1,1]
+
+% === 0.4 Ventana de trabajo (5 s) ===
+t = (0:length(x)-1)/fs;
+max_time = 5;                         % segundos
+sel = t <= max_time;
+x = x(sel);  t = t(sel); % <--- CORREGIDO
+
+% === 1.1 Probabilidad normalizada p[n] ===
+p = abs(x);
+p = p ./ max(eps, max(p));
+
+% === 1.2 Entropía/energía de Shannon puntual (log10) ===
+E = -p .* log10(p + eps);     % variante equivalente a -|x|log|x|
+
+% === 1.3 Estandarización y normalización a [0,1] ===
+E_z  = (E - mean(E)) / (std(E) + eps);
+Env0 = (E_z - min(E_z)) / max(eps, (max(E_z) - min(E_z)));   % envolvente base [0,1]
+
+% === 2.1 LPF sobre la envolvente (no sobre x) ===
+fc = 8;                                         % corte ~10 Hz
+[b,a] = butter(4, fc/(fs/2), 'low');
+Env = filtfilt(b, a, Env0);
+
+% === 2.2 Normalización final a [0,1] ===
+Env = (Env - min(Env)) / max(eps, (max(Env) - min(Env)));
+
+% Visual rápido
+figure('Name','Señal & Envolvente (Shannon LPF)');
+subplot(2,1,1); plot(t, x, 'k'); grid on;
+title('Señal PCG (normalizada)'); xlabel('Tiempo (s)'); ylabel('Amplitud');
+
+subplot(2,1,2); plot(t, Env, 'b'); grid on;
+title('Envolvente de Shannon (LPF)'); xlabel('Tiempo (s)'); ylabel('Amplitud norm.');
+
+% Visual rápido
+figure('Name','Señal & Envolvente (Shannon LPF) superpuestas');
+plot(t, x, 'k');  hold on;
+plot(t, Env, 'b'); grid on;
+legend('Señal PCG (normalizada)','Envolvente de Shannon (LPF)'); xlabel('Tiempo (s)'); ylabel('Amplitud norm.');
+grid on;
+
+% === 3.1 Derivada discreta y detección de cambios de signo ===
+d = diff(Env);
+idx_ext = []; tipo = [];  % tipo: 1 = min, 2 = max
+
+for i = 1:length(d)-1
+    if d(i) < 0 && d(i+1) > 0
+        idx_ext(end+1) = i+1; tipo(end+1) = 1;  % mínimo
+    elseif d(i) > 0 && d(i+1) < 0
+        idx_ext(end+1) = i+1; tipo(end+1) = 2;  % máximo
+    end
+end
+
+% Visual
+figure('Name','Envolvente con min/máx');
+plot(t, Env, 'b'); hold on; grid on;
+plot(t(idx_ext(tipo==1)), Env(idx_ext(tipo==1)), 'go', 'DisplayName','Mínimos');
+plot(t(idx_ext(tipo==2)), Env(idx_ext(tipo==2)), 'ro', 'DisplayName','Máximos');
+legend; xlabel('Tiempo (s)'); ylabel('Amplitud norm.');
+title('Extremos locales sobre la envolvente');
+
+% === 4.1 Construcción de tripletes mín–máx–mín ===
+tri_samp = []; tri_time = []; tri_amp = [];
+for k = 1:length(tipo)-2
+    if tipo(k)==1 && tipo(k+1)==2 && tipo(k+2)==1
+        i1 = idx_ext(k); i2 = idx_ext(k+1); i3 = idx_ext(k+2);
+        tri_samp(end+1,:) = [i1,i2,i3];                  %#ok<SAGROW>
+        tri_time(end+1,:) = [t(i1), t(i2), t(i3)];       %#ok<SAGROW>
+        tri_amp(end+1,:)  = [Env(i1), Env(i2), Env(i3)]; %#ok<SAGROW>
+    end
+end
+
+% === 4.2 Área de cada triángulo ===
+areas = zeros(size(tri_time,1),1);
+for i = 1:size(tri_time,1)
+    x1=tri_time(i,1); y1=tri_amp(i,1);
+    x2=tri_time(i,2); y2=tri_amp(i,2);
+    x3=tri_time(i,3); y3=tri_amp(i,3);
+    areas(i) = 0.5 * abs( x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2) );
+end
+
+% Visual
+figure('Name','Triángulos mín–máx–mín');
+plot(t, Env, 'g', 'LineWidth', 1.2); hold on; grid on;
+for i = 1:size(tri_time,1)
+    tx = [tri_time(i,:), tri_time(i,1)];
+    ty = [tri_amp(i,:),  tri_amp(i,1)];
+    plot(tx, ty, 'r-', 'LineWidth', 1.0);
+end
+plot(t(idx_ext), Env(idx_ext), 'ko', 'MarkerSize', 4);
+xlabel('Tiempo (s)'); ylabel('Amplitud norm.');
+title('Envolvente y triángulos candidatos');
+
+% === 5.1 Selección por área (umbral: promedio) ===
+Amed = mean(areas);
+Amed = Amed * 1.5;
+mask_big = areas > Amed;
+
+
+% === 5.2 Propuesta de ciclos: [min1, min2] de cada triángulo grande ===
+ciclos_idx = tri_samp(mask_big, [1 3]);  % índices
+ciclos_idx = sortrows(ciclos_idx, 1);
+
+% === 5.3 Limpieza por duración fisiológica y no solape ===
+minRR = round(0.30*fs);   % 0.30 s
+maxRR = round(1.50*fs);   % 1.50 s
+ciclos_ref = [];
+for i = 1:size(ciclos_idx,1)
+    L = ciclos_idx(i,2) - ciclos_idx(i,1);
+    if L >= minRR && L <= maxRR
+        if isempty(ciclos_ref) || ciclos_idx(i,1) > ciclos_ref(end,2)
+            ciclos_ref = [ciclos_ref; ciclos_idx(i,:)]; %#ok<AGROW>
+        end
+    end
+end
+
+% Visual
+figure('Name','Triángulos y original');
+plot(t, x, 'k'); grid on; hold on;
+plot(t, Env, 'g', 'LineWidth', 1.2); hold on; grid on;
+for i = find(mask_big)'
+    tx = [tri_time(i,:), tri_time(i,1)];
+    ty = [tri_amp(i,:),  tri_amp(i,1)];
+    plot(tx, ty, 'r-', 'LineWidth', 1.0);
+end
+plot(t(idx_ext), Env(idx_ext), 'ko', 'MarkerSize', 4);
+xlabel('Tiempo (s)'); ylabel('Amplitud norm.');
+title('Envolvente y triángulos candidatos');
+
+% ---------- INPUTS (debe existir) ----------
+% t, x, Env, tri_time, tri_amp, mask_big
+% ---------- FIN INPUTS ----------
+
+% --- 1) Detectar crestas (Simplificado) ---
+tri_idx = find(mask_big)';
+if isempty(tri_idx)
+    error('No se encontraron triángulos candidatos (mask_big está vacío).');
+end
+
+% Los picos SON el punto central (i2) de los triángulos "grandes"
+peak_indices = tri_samp(mask_big, 2);
+
+% Ordenar y eliminar duplicados (si los triángulos se solaparon)
+peak_indices = unique(peak_indices);
+
+peaks_time = t(peak_indices);
+peaks_amp  = Env(peak_indices);
+nPeaks = numel(peaks_time);
+
+if nPeaks < 2
+    error('No hay suficientes crestas detectadas para clasificar S1/S2.');
+end
+
+% --- 2) Calcular dt y separar en "corto" y "largo" (kmeans) ---
+dt = diff(peaks_time);   % nPeaks-1
+
+% Fallback por si kmeans no está disponible o falla
+useKmeans = true;
+try
+    % requerirá Statistics Toolbox, replicates para estabilidad
+    [clustIdx, C] = kmeans(dt(:), 2, 'Replicates', 10, 'MaxIter', 500);
+catch
+    useKmeans = false;
+end
+
+if useKmeans
+    % cluster menor = intervalo corto (S1->S2)
+    [~, shortCluster] = min(C);
+    isShort = (clustIdx == shortCluster);
+    short_mean = C(shortCluster);
+    long_mean  = C(3-shortCluster);
+else
+    % fallback simple: umbral por mediana
+    med = median(dt);
+    isShort = dt < med;
+    short_mean = mean(dt(isShort));
+    long_mean  = mean(dt(~isShort));
+end
+
+fprintf('Intervalos: media corto=%.3f s, media largo=%.3f s, nPeaks=%d\n', short_mean, long_mean, nPeaks);
+
+% --- 3) Etiquetado secuencial robusto: si dt(i) es corto -> i=S1, i+1=S2.
+labels = strings(nPeaks,1);
+i = 1;
+while i <= nPeaks
+    if i == nPeaks
+        % último pico sin forward interval: decidir por vecino
+        if i>1 && labels(i-1) == "S1"
+            labels(i) = "S2";
+        else
+            labels(i) = "S1";
+        end
+        break;
+    end
+
+    if isShort(i)   % dt(i) = peaks_time(i+1)-peaks_time(i) corto -> forma par S1-S2
+        labels(i)   = "S1";
+        labels(i+1) = "S2";
+        i = i + 2;
+    else
+        % dt(i) largo -> es muy probable que estemos en S2 -> S1 siguiente
+        if labels(i) == ""
+            labels(i) = "S2";
+        end
+        i = i + 1;
+    end
+end
+
+% --- 4) Rellenar cualquier etiqueta vacía con heurística de vecino/amplitud ---
+for i = 1:nPeaks
+    if labels(i) == ""
+        if i>1 && labels(i-1) == "S1"
+            labels(i) = "S2";
+        elseif i<nPeaks && labels(i+1) == "S2"
+            labels(i) = "S1";
+        else
+            % fallback por amplitud relativa
+            if peaks_amp(i) >= median(peaks_amp)
+                labels(i) = "S1";
+            else
+                labels(i) = "S2";
+            end
+        end
+    end
+end
+
+% --- 5) Calcular BPM desde S1 detectadas ---
+S1_times = peaks_time(labels == "S1");
+if numel(S1_times) >= 2
+    rr = diff(S1_times);       % segundos entre S1
+    bpm = 60 / median(rr);
+else
+    bpm = NaN;
+end
+
+
+% --- 6) Graficar resultados ---
+figure('Name','Detección S1/S2 mejorada'); clf;
+plot(t, x, 'k'); hold on; grid on;
+plot(t, Env, 'g', 'LineWidth', 1.2);
+% triángulos
+for iTri = tri_idx
+    tx = [tri_time(iTri,:), tri_time(iTri,1)];
+    ty = [tri_amp(iTri,:),  tri_amp(iTri,1)];
+    plot(tx, ty, 'r-', 'LineWidth', 1.0);
+end
+
+% marcadores para S1 y S2
+S1_idx = find(labels == "S1");
+S2_idx = find(labels == "S2");
+
+plot(peaks_time(S1_idx), peaks_amp(S1_idx), 'bv', 'MarkerFaceColor','b', 'MarkerSize',8); % S1 azul
+plot(peaks_time(S2_idx), peaks_amp(S2_idx), 'rv', 'MarkerFaceColor','r', 'MarkerSize',8); % S2 rojo
+
+% Etiquetas de texto
+for k = 1:nPeaks
+    txt = labels(k);
+    text(peaks_time(k), peaks_amp(k)+0.02*range(Env), char(txt), 'HorizontalAlignment','center', 'FontWeight','bold');
+end
+
+
+xlabel('Tiempo (s)'); ylabel('Amplitud normalizada');
+title(sprintf('Clasificación S1/S2 (BPM~%.1f)', bpm));
+legend('Señal original','Envolvente','Triángulos','S1','S2','Location','best');
+
+% --- 7) Información de depuración opcional ---
+fprintf('Detectadas: %d S1, %d S2\n', sum(labels=="S1"), sum(labels=="S2"));
+
+% === 8) Buscar y graficar mínimos asociados a S1 ===
+search_window = 0.08;  % segundos hacia adelante desde el pico S1 (ajustable)
+S1_min_time = [];
+S1_min_amp = [];
+
+for k = 1:length(S1_idx)
+    tS1 = peaks_time(S1_idx(k));
+    idx_range = find(t >= tS1 & t <= tS1 + search_window);
+    if isempty(idx_range)
+        continue;
+    end
+    [min_amp, idx_rel] = min(Env(idx_range)); % mínimo de la envolvente
+    min_time = t(idx_range(idx_rel));
+
+    S1_min_time(end+1) = min_time;
+    S1_min_amp(end+1)  = min_amp;
+end
+
+
+% --- Actualizar leyenda ---
+legend('Señal original','Envolvente','Triángulos','S1','S2','S1min','Location','best');
+
+%% === Detección de mínimos izquierdos (inicio de S1) ===
+% Requiere: t, Env, peaks_time, peaks_amp, S1_idx ya calculados
+
+Fs = fs;     % frecuencia de muestreo (Hz)
+smooth_ms = 15;             % suavizado en ms
+search_pre  = 0.12;         % segundos antes del pico S1 para buscar (ajusta 0.05–0.15)
+search_post = 0.03;         % pequeño margen después del pico
+min_prominence = 0.01;      % prominencia mínima (ajustable)
+min_depth_rel = 0.10;       % profundidad mínima relativa (10%)
+
+% --- Suavizar envolvente ---
+smooth_n = max(3, round(Fs * (smooth_ms/1000)));
+Env_s = movmean(Env, smooth_n);
+
+S1_min_time = nan(size(S1_idx));
+S1_min_amp  = nan(size(S1_idx));
+
+for kk = 1:length(S1_idx)
+    idxPeak = S1_idx(kk);
+    tS1 = peaks_time(idxPeak);
+    pAmp = peaks_amp(idxPeak);
+
+    % === Buscar ANTES del pico (mínimo izquierdo) ===
+    i_start = find(t >= max(t(1), tS1 - search_pre), 1, 'first');
+    i_end   = find(t <= min(t(end), tS1 + search_post), 1, 'last');
+    if isempty(i_start) || isempty(i_end) || i_end <= i_start
+        continue;
+    end
+
+    seg_t = t(i_start:i_end);
+    seg_env = Env_s(i_start:i_end);
+
+    % Buscar picos en -Env (equivale a mínimos)
+    [negPeaks, negLocs] = findpeaks(-seg_env, 'MinPeakProminence', min_prominence);
+
+    if ~isempty(negLocs)
+        locs_time = seg_t(negLocs);
+        % Elegir el último mínimo antes del pico S1 (izquierdo)
+        before_mask = locs_time <= tS1;
+        if any(before_mask)
+            candIdx = find(before_mask);
+            chosen = candIdx(end); % el más cercano antes del pico
+            min_idx = i_start + negLocs(chosen) - 1;
+        else
+            % Si no hay ninguno antes, usar el mínimo global de la ventana
+            [~, im] = min(seg_env);
+            min_idx = i_start + im - 1;
+        end
+
+        S1_min_time(kk) = t(min_idx);
+        S1_min_amp(kk)  = Env(min_idx);
+    end
+end
+
+% --- Graficar ---
+plot(S1_min_time, S1_min_amp, 'mv', 'MarkerFaceColor','m', 'MarkerSize',8);
+for jj = 1:length(S1_min_time)
+    if ~isnan(S1_min_time(jj))
+        text(S1_min_time(jj), S1_min_amp(jj) - 0.02*range(Env), ...
+            'S1minL', 'Color','m', 'FontWeight','bold', ...
+            'HorizontalAlignment','center','VerticalAlignment','top');
+    end
+end
+
+fprintf('Mínimos izquierdos detectados: %d de %d S1\n', ...
+        sum(~isnan(S1_min_time)), length(S1_idx));
+
+
+% === 5.4 Visual: sombrear ciclos en la envolvente ===
+figure('Name','Ciclos cardiacos detectados');
+plot(t, Env, 'k'); grid on; hold on;
+for i = 1:size(ciclos_ref,1)
+    i1 = ciclos_ref(i,1); i2 = ciclos_ref(i,2);
+    fill([t(i1) t(i2) t(i2) t(i1)], [0 0 1 1], ...
+         'c', 'FaceAlpha', 0.18, 'EdgeColor','none');
+end
+legend('Envolvente','Ciclos'); xlabel('Tiempo (s)'); ylabel('Amplitud norm.');
+title('Ciclos cardiacos (propuestos)');
+
+%% === BLOQUE 1 (Prác. 5): Selección Greedy por Área ===
+% --- CORRECCIÓN 1: El umbral debe ser 1.10, no 1.5 ---
+Amean  = mean(areas);
+Athr   = 1.10 * Amean;                 % umbral robusto (+10% sobre el promedio)
+mask   = (areas >= Athr);
+
+cand_samp = tri_samp(mask, :);         % [imin1, imax, imin2]
+cand_time = tri_time(mask, :);         % [tmin1, tmax, tmin2]
+cand_area = areas(mask);
+
+% Greedy por área (desc), evitando solapes
+[~, order] = sort(cand_area, 'descend');
+chosen = [];        % filas: [t_ini, t_fin, area, idx_candidato]
+used   = false(size(cand_area));
+
+for k = 1:numel(order)
+    r = order(k);
+    ti = cand_time(r,1); tf = cand_time(r,3);
+    
+    % --- CORRECCIÓN 2: Lógica de solape más limpia ---
+    overlap = false;
+    if ~isempty(chosen) % Comprobar solo si 'chosen' NO está vacío
+        overlap = any( (ti < chosen(:,2)) & (tf > chosen(:,1)) );
+    end
+    
+    if ~overlap
+        chosen = [chosen; ti, tf, cand_area(r), r]; %#ok<AGROW>
+        used(r) = true;
+    end
+end
+
+sel_rows     = find(used);
+ciclos_idx   = cand_samp(sel_rows, [1 3]);             % [imin1, imin2]
+ciclos_time  = cand_time(sel_rows, [1 3]);             % [tmin1, tmin2]
+ciclos_area  = cand_area(sel_rows);
+
+% Ordenar por tiempo de inicio
+[~, ordt]    = sort(ciclos_time(:,1), 'ascend');
+ciclos_idx   = ciclos_idx(ordt,:); 
+ciclos_time  = ciclos_time(ordt,:);
+ciclos_area  = ciclos_area(ordt);
+
+% Visual (el título ahora coincide con el umbral)
+figure('Name','Ciclos cardiacos (umbral 1.10·Amean + greedy)');
+plot(t, Env, 'k'); grid on; hold on;
+for i = 1:size(ciclos_idx,1)
+    i1 = ciclos_idx(i,1); i2 = ciclos_idx(i,2);
+    fill([t(i1) t(i2) t(i2) t(i1)], [0 0 1 1], ...
+         'c', 'FaceAlpha', 0.18, 'EdgeColor','none');
+end
+title('Envolvente de Shannon + ciclos seleccionados');
+xlabel('Tiempo (s)'); ylabel('Amplitud norm.'); legend('Envolvente','Ciclos');
+
+%% === BLOQUE 2: Dataset de Ciclos ===
+nC = size(ciclos_idx,1);
+
+% Asegúrate de que 'file_name' y 'fs' existen en el workspace
+if ~exist('file_name','var') || ~exist('fs','var')
+    error('Las variables file_name y fs no existen. Ejecuta la Práctica 4 primero.');
+end
+if nC == 0
+    warning('No se detectaron ciclos para %s. Saltando el resto del script.', file_name);
+    return; % Salir si no hay ciclos
+end
+
+file_id   = repmat(string(file_name), nC, 1);
+cycle_id  = (1:nC).';
+i_start   = ciclos_idx(:,1);
+i_end     = ciclos_idx(:,2);
+t_start   = ciclos_time(:,1);
+t_end     = ciclos_time(:,2);
+n_samples = i_end - i_start + 1;
+area_sel  = ciclos_area(:);
+fs_col    = repmat(fs, nC, 1);
+
+T_cycles = table(file_id, cycle_id, i_start, i_end, t_start, t_end, n_samples, area_sel, fs_col, ...
+   'VariableNames', {'file_id','cycle_id','i_start','i_end','t_start','t_end','n_samples','area','fs'});
+
+if ~exist('out','dir'); mkdir out; end
+save(fullfile('out', file_name + "_cycles.mat"), 'T_cycles');
+writetable(T_cycles, fullfile('out', file_name + "_cycles.csv"));
+disp(">> Guardado dataset base de ciclos: out/" + file_name + "_cycles.(mat,csv)");
+
+%% === BLOQUE 5: Construcción del dataset de rasgos MFCC por ciclo ===
+S = load(fullfile('out', file_name + "_cycles.mat"));   % T_cycles
+T_cycles = S.T_cycles;
+
+% Etiqueta
+target_label = infer_label_from_filename(file_name);
+pars.frame_ms = 25; pars.hop_ms = 10; pars.n_mels = 26; pars.n_mfcc = 13;
+
+feat_names_mu  = "mfcc" + (0:pars.n_mfcc-1) + "_mean";
+feat_names_std = "mfcc" + (0:pars.n_mfcc-1) + "_std";
+all_feat_names = [feat_names_mu, feat_names_std];
+
+rows = height(T_cycles);
+F = zeros(rows, numel(all_feat_names));
+
+for r = 1:rows
+    i1 = T_cycles.i_start(r);
+    i2 = T_cycles.i_end(r);
+    xc = x(i1:i2);                            % usa el mismo segmento normalizado
+    feats = mfcc_per_cycle(xc, fs, pars);     % 2*n_mfcc rasgos
+    F(r,:) = feats;
+end
+
+Label = repmat(string(target_label), rows, 1);
+T_features = [ T_cycles(:, {'file_id','cycle_id','t_start','t_end','area'}) , ...
+               array2table(F, 'VariableNames', all_feat_names), ...
+               table(Label, 'VariableNames', {'label'}) ];
+
+save(fullfile('out', file_name + "_mfcc_dataset.mat"), 'T_features', 'pars');
+writetable(T_features, fullfile('out', file_name + "_mfcc_dataset.csv"));
+disp(">> Guardado dataset de rasgos: out/" + file_name + "_mfcc_dataset.(mat,csv)");
+
+
+%% === BLOQUE 6: Unir todos los datasets MFCC (Ejecutar por separado) ===
+% Este bloque asume que ya has procesado MÚLTIPLES archivos
+% y sus .mat están en la carpeta 'out/'.
+fprintf('\n--- Iniciando Bloque 6: Agregación de Lote ---\n');
+files = dir(fullfile('data', '*.mp3'));
+All = table();
+for f = 1:numel(files)
+    baseName = erase(files(f).name, ".mp3");
+    mfccFile = fullfile('out', baseName + "_mfcc_dataset.mat");
+    
+    if isfile(mfccFile)
+        S = load(mfccFile);
+        if isfield(S, 'T_features')
+            All = [All; S.T_features]; %#ok<AGROW>
+            fprintf(">> Añadido: %s\n", files(f).name);
+        else
+            warning("El archivo %s no contiene 'T_features'.", mfccFile);
+        end
+    else
+        warning("No se encontró el archivo MFCC: %s. (¿Se procesó?)", mfccFile);
+    end
+end
+if ~isempty(All)
+    writetable(All, fullfile('out', 'ALL_pcg_mfcc_dataset.csv'));
+    save(fullfile('out', 'ALL_pcg_mfcc_dataset.mat'), 'All');
+    disp("✅ Dataset combinado guardado en: out/ALL_pcg_mfcc_dataset.(csv,mat)");
+else
+    warning("⚠️ No se generó ningún dataset combinado (no se hallaron archivos MFCC).");
+end
+
+
+
+
+
+
+
+
