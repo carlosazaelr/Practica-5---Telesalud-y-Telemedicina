@@ -188,9 +188,8 @@ disp(">> Guardado dataset base de ciclos: out/" + file_name + "_cycles.(mat,csv)
 **d) Agregación por ciclo (fijar dimensión)**
 
   * Un ciclo tiene **duración variable**. Para obtener un **vector fijo**, agregamos por ventana:
-    $$\mu_q = \underset{m}{\operatorname{mean}}\{c_m(q)\},\qquad \sigma_q = \underset{m}{\operatorname{std}}\{c_m(q)\}$$
-    Vector final del ciclo: $[\mu_0,\dots,\mu_{Q-1},\sigma_0,\dots,\sigma_{Q-1}]$.
-
+    $$\mu_q = \underset{m}{\mathrm{mean}}\{c_m(q)\},\qquad \sigma_q = \underset{m}{\mathrm{std}}\{c_m(q)\}$$
+    
 **e) Detalles prácticos (robustez numérica)**
 
   * **Pre-énfasis** (opcional) si la señal es muy atenuada en altas.
