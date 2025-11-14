@@ -1,8 +1,12 @@
 # Práctica 5 — Segmentación y dataset de PCG + **MFCC** por ciclo
 
-**Curso:** Telesalud y Telemedicina
-**Secuencia:** (Prác. 4) Segmentación por Shannon → **(Prác. 5) Selección robusta + Dataset + MFCC por ciclo**
-
+Telesalud y Telemedicina
+Ingeniería Biomédica
+Departamento de Ingeniería Eléctrica y Electrónica, Tecnológico Nacional de México/IT Tijuana, Blvd. Alberto Limón Padilla s/n, Tijuana, C.P. 22454, B.C., México.
+Prof. Fortunato Ramírez Arzate
+Unidad 1: Introducción a la Telesalud y a la Telemedicina
+Ramirez Rodriguez Carlos Azael
+22212267
 -----
 
 ## Visión general (por qué este pipeline)
